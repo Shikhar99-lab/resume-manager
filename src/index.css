@@ -1,0 +1,13 @@
+/*
+  Tailwind CSS directives — these are replaced by Tailwind's utility classes at build time.
+  Think of these as "import all of Tailwind's base styles, component styles, and utilities".
+*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Prevent body scroll — our layout uses flex + overflow-hidden instead */
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
