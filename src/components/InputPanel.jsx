@@ -139,8 +139,8 @@ export default function InputPanel({
         </button>
 
         <p className="text-[10px] text-gray-700 text-center mt-2">
-          Uses <span className="text-gray-500">qwen2.5:3b</span> via Ollama — runs
-          locally, nothing leaves your Mac
+          Uses <span className="text-gray-500">llama-3.3-70b</span> via Groq — free
+          tier, fast cloud inference
         </p>
       </div>
 

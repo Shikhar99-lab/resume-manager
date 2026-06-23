@@ -7,7 +7,7 @@
  * logic together so your component stays clean.
  *
  * This hook owns ALL version management: reading from/writing to localStorage,
- * adding/deleting/selecting versions, and generating new ones via Ollama.
+ * adding/deleting/selecting versions, and generating new ones via Groq.
  *
  * WHY LOCALSTORAGE?
  * - No backend needed — data lives in the browser
@@ -18,7 +18,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { baseVersion, createVersion } from '../data/baseResume'
-import { generateResumeVersion } from '../services/ollamaService'
+import { generateResumeVersion } from '../services/resumeService'
 
 const STORAGE_KEY = 'resume_manager_versions'
 

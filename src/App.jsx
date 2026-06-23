@@ -17,7 +17,7 @@
 
 import { useEffect, useState } from 'react'
 import { useVersions } from './hooks/useVersions'
-import { checkOllamaConnection } from './services/ollamaService'
+import { checkConnection } from './services/resumeService'
 import VersionPanel from './components/VersionPanel'
 import ResumePreview from './components/ResumePreview'
 import InputPanel from './components/InputPanel'
@@ -37,11 +37,11 @@ export default function App() {
     clearError,
   } = useVersions()
 
-  // Check if Ollama is reachable on startup
-  const [ollamaOk, setOllamaOk] = useState(null) // null = checking, true/false = result
+  // null = still checking, { ok, model } = result
+  const [connectionStatus, setConnectionStatus] = useState(null)
 
   useEffect(() => {
-    checkOllamaConnection().then(setOllamaOk)
+    checkConnection().then(setConnectionStatus)
   }, [])
 
   return (
@@ -57,22 +57,22 @@ export default function App() {
           )}
         </div>
 
-        {/* Ollama status pill */}
+        {/* Groq connection status pill */}
         <div className="flex items-center gap-2">
-          {ollamaOk === null && (
-            <span className="text-xs text-gray-600">Checking Ollama…</span>
+          {connectionStatus === null && (
+            <span className="text-xs text-gray-600">Checking backend…</span>
           )}
-          {ollamaOk === true && (
+          {connectionStatus?.ok === true && (
             <span className="flex items-center gap-1.5 text-xs text-emerald-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
-              Ollama connected
+              Groq · {connectionStatus.model}
             </span>
           )}
-          {ollamaOk === false && (
+          {connectionStatus?.ok === false && (
             <span className="flex items-center gap-1.5 text-xs text-red-400">
               <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />
-              Ollama offline —{' '}
-              <code className="text-red-300 bg-red-950 px-1 rounded">ollama serve</code>
+              Backend offline —{' '}
+              <code className="text-red-300 bg-red-950 px-1 rounded">npm run dev</code>
             </span>
           )}
         </div>

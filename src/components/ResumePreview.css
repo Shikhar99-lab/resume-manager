@@ -256,26 +256,37 @@
     margin: 0;
   }
 
-  /* Hide everything on the page */
-  body > * {
-    display: none !important;
+  /*
+   * WHY visibility INSTEAD OF display?
+   *
+   * The resume lives inside #root inside <body>.
+   * If we do `body > * { display:none }` it hides #root, and children of a
+   * display:none element can never show themselves — display:block on a child
+   * cannot escape a display:none ancestor.
+   *
+   * visibility is different: `visibility:visible` on a child DOES override
+   * `visibility:hidden` on a parent. So we hide everything visually, then
+   * selectively reveal just the resume card.
+   */
+  body * {
+    visibility: hidden !important;
   }
 
-  /* Show only the printable resume wrapper */
-  #resume-print-area {
-    display: block !important;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+  /* The resume card and every element inside it become visible */
+  .resume-print-target,
+  .resume-print-target * {
+    visibility: visible !important;
   }
 
-  #resume-print-area .resume-root {
-    display: block;
+  /* Pin it to the top-left corner of the printed page */
+  .resume-print-target {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
   }
 
-  #resume-print-area .resume {
+  .resume-print-target .resume {
     width: 100% !important;
     box-shadow: none !important;
     min-height: 100vh;

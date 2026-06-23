@@ -21,33 +21,26 @@ export default function ResumePreview({ data }) {
   }
 
   return (
-    <>
+    <div className="flex flex-col items-center py-8 px-4 bg-[#e8e4df] min-h-full">
+      <div className="w-full max-w-[794px] flex justify-end mb-3">
+        <button
+          onClick={handleDownload}
+          className="flex items-center gap-2 bg-[#1a1a1a] text-white text-xs font-medium px-5 py-2 rounded-sm hover:bg-[#333] transition-colors tracking-wider"
+        >
+          <DownloadIcon />
+          Download PDF
+        </button>
+      </div>
+
       {/*
-        This div is the print target.
-        The CSS @media print rule hides everything EXCEPT #resume-print-area.
-        So clicking "Download PDF" → window.print() → only this renders on paper.
+        resume-print-target is the class the print CSS watches for.
+        On screen: renders normally. On print: everything else goes
+        visibility:hidden and this becomes visibility:visible.
       */}
-      <div id="resume-print-area" style={{ display: 'none' }}>
+      <div className="resume-root resume-print-target">
         <ResumeCard data={data} />
       </div>
-
-      {/* Screen view — the scrollable preview in the middle panel */}
-      <div className="flex flex-col items-center py-8 px-4 bg-[#e8e4df] min-h-full">
-        <div className="w-full max-w-[794px] flex justify-end mb-3">
-          <button
-            onClick={handleDownload}
-            className="flex items-center gap-2 bg-[#1a1a1a] text-white text-xs font-medium px-5 py-2 rounded-sm hover:bg-[#333] transition-colors tracking-wider"
-          >
-            <DownloadIcon />
-            Download PDF
-          </button>
-        </div>
-
-        <div className="resume-root">
-          <ResumeCard data={data} />
-        </div>
-      </div>
-    </>
+    </div>
   )
 }
 
