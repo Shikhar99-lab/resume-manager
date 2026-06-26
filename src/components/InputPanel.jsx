@@ -48,7 +48,7 @@ export default function InputPanel({
       : `Describe what to change…\n\nExamples:\n• "Make the summary more concise, under 3 sentences"\n• "Move Docker and Kubernetes to the top of Cloud skills"\n• "Add 'GraphQL' to backend skills"\n• "Rewrite the SunTec bullets to sound more senior"`
 
   return (
-    <div className="flex flex-col h-full bg-gray-950 text-gray-300 w-80 shrink-0 border-l border-gray-800">
+    <div id="input-panel" className="flex flex-col h-full bg-gray-950 text-gray-300 w-80 shrink-0 border-l border-gray-800">
       {/* Header */}
       <div className="px-4 py-4 border-b border-gray-800">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">

@@ -45,9 +45,9 @@ export default function App() {
   }, [])
 
   return (
-    <div className="flex flex-col h-screen bg-gray-950 text-gray-100 overflow-hidden">
+    <div id="app-root" className="flex flex-col h-screen bg-gray-950 text-gray-100 overflow-hidden">
       {/* ─── Top Header ─── */}
-      <header className="flex items-center justify-between px-5 py-3 bg-gray-900 border-b border-gray-800 shrink-0">
+      <header id="app-header" className="flex items-center justify-between px-5 py-3 bg-gray-900 border-b border-gray-800 shrink-0">
         <div className="flex items-center gap-3">
           <span className="text-lg font-bold text-white tracking-tight">Resume Manager</span>
           {activeVersion && (
@@ -84,7 +84,7 @@ export default function App() {
         overflow-hidden on the row prevents the whole page from scrolling —
         each panel scrolls independently.
       */}
-      <div className="flex flex-1 overflow-hidden">
+      <div id="app-panels" className="flex flex-1 overflow-hidden">
         {/* Left panel — version list */}
         <VersionPanel
           versions={versions}
@@ -95,7 +95,7 @@ export default function App() {
         />
 
         {/* Center panel — resume preview (scrollable) */}
-        <div className="flex-1 overflow-y-auto">
+        <div id="resume-center" className="flex-1 overflow-y-auto">
           <ResumePreview data={activeVersion?.data} />
         </div>
 

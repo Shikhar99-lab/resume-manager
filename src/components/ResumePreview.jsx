@@ -23,12 +23,44 @@ export default function ResumePreview({ data }) {
   if (!data) return null
 
   const handleDownload = () => {
+    const target = document.querySelector('.resume-print-target')
+    const resume = target?.querySelector('.resume')
+
+    if (target && resume) {
+      target.style.transform = 'none'
+      // Drop the min-height placeholder so we measure the TRUE content height,
+      // not the 1122px floor the resume normally reserves for screen display.
+      const prevMinHeight = resume.style.minHeight
+      resume.style.minHeight = '0'
+      const contentHeight = resume.scrollHeight
+      resume.style.minHeight = prevMinHeight
+
+      // 297mm at 96dpi ≈ 1122px. Only shrink if content genuinely overflows —
+      // a resume that already fits stays at scale 1 (full page width).
+      const A4_PX = 1122
+      const scale = contentHeight > A4_PX ? A4_PX / contentHeight : 1
+
+      // transform: scale() with origin top-center scales toward the middle, so
+      // a shrunk resume stays horizontally centered (unlike zoom, which shrinks
+      // from the top-left corner and leaves all the gap on the right).
+      target.style.transformOrigin = 'top center'
+      target.style.transform = `scale(${scale})`
+
+      // Clean up after the print dialog closes
+      const resetTransform = () => {
+        target.style.transform = ''
+        target.style.transformOrigin = ''
+        window.removeEventListener('afterprint', resetTransform)
+      }
+      window.addEventListener('afterprint', resetTransform)
+    }
+
     window.print()
   }
 
   return (
-    <div className="flex flex-col items-center py-8 px-4 bg-[#e8e4df] min-h-full">
-      <div className="w-full max-w-[794px] flex justify-end mb-3">
+    <div id="resume-wrapper" className="flex flex-col items-center py-8 px-4 bg-[#e8e4df] min-h-full">
+      <div id="pdf-toolbar" className="w-full max-w-[794px] flex justify-end mb-3">
         <button
           onClick={handleDownload}
           className="flex items-center gap-2 bg-[#1a1a1a] text-white text-xs font-medium px-5 py-2 rounded-sm hover:bg-[#333] transition-colors tracking-wider"

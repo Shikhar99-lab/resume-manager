@@ -36,7 +36,7 @@ export default function VersionPanel({ versions, activeId, onSelect, onDelete, o
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-950 text-gray-300 w-60 shrink-0 border-r border-gray-800">
+    <div id="version-panel" className="flex flex-col h-full bg-gray-950 text-gray-300 w-60 shrink-0 border-r border-gray-800">
       {/* Header */}
       <div className="px-4 py-4 border-b border-gray-800">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500">
