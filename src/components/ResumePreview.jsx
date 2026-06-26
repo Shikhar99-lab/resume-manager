@@ -1,14 +1,20 @@
 /**
  * ResumePreview
  *
- * Takes a `data` object (the resume JSON) and renders it as the
- * pixel-perfect resume. The layout is identical to the original HTML file.
+ * Renders the resume JSON as a SINGLE-COLUMN, ATS-friendly document.
  *
- * KEY REACT CONCEPTS USED HERE:
- * - Props: data is passed in from the parent (App.jsx)
- * - Array.map(): to render lists (experience, skills, etc.)
- * - Object.entries(): to iterate over the skills object
- * - Conditional rendering: {array.length > 0 && <section>...</section>}
+ * WHY SINGLE COLUMN?
+ * Applicant Tracking Systems (Greenhouse, Workday, Lever, Taleo) flatten a PDF
+ * into one left-to-right text stream. A two-column layout interleaves the
+ * sidebar with the body and scrambles the parsed output. A single column reads
+ * top-to-bottom in the exact order a human (and the parser) expects.
+ *
+ * OTHER ATS-SAFE CHOICES MADE HERE:
+ * - Real <ul>/<li> bullets via list-style (not CSS ::before pseudo-content,
+ *   which the PDF text layer does not always export).
+ * - Skills printed as plain comma-separated text per category, not styled tags.
+ * - Standard, recognizable section headings ("Skills", "Experience", etc.).
+ * - No icons, images, tables, or text boxes — just headings and text.
  */
 
 import './ResumePreview.css'
@@ -45,163 +51,132 @@ export default function ResumePreview({ data }) {
 }
 
 /**
- * ResumeCard — the actual A4 resume layout.
- * Separated so we can render it in both screen view and print area.
+ * ResumeCard — single-column A4 resume.
  */
 function ResumeCard({ data }) {
+  // Build an ordered list of present contact entries so we can join them
+  // with separators without leaving dangling " | " for missing fields.
+  const contactParts = [
+    data.contact.location,
+    data.contact.mobile,
+    data.contact.email,
+    data.contact.portfolio,
+    data.contact.linkedin,
+    data.contact.github,
+  ].filter(Boolean)
+
   return (
     <div className="resume">
-      {/* ─── LEFT SIDEBAR ─── */}
-      <aside className="sidebar">
-        <div className="sidebar-name">{data.name}</div>
-        <div className="sidebar-title">{data.title}</div>
+      {/* ─── HEADER ─── */}
+      <header className="resume-header">
+        <h1 className="resume-name">{data.name}</h1>
+        {data.title && <div className="resume-title">{data.title}</div>}
+        {contactParts.length > 0 && (
+          <div className="resume-contact">
+            {contactParts.map((part, i) => (
+              <span key={i} className="contact-piece">
+                {part}
+                {i < contactParts.length - 1 && (
+                  <span className="contact-sep"> | </span>
+                )}
+              </span>
+            ))}
+          </div>
+        )}
+      </header>
 
-        {/* Contact */}
-        <div className="sidebar-section">
-          <div className="s-label">Contact</div>
-          {data.contact.location && (
-            <div className="contact-item">
-              <span>Location</span>
-              {data.contact.location}
-            </div>
-          )}
-          {data.contact.mobile && (
-            <div className="contact-item">
-              <span>Mobile</span>
-              {data.contact.mobile}
-            </div>
-          )}
-          {data.contact.email && (
-            <div className="contact-item">
-              <span>Email</span>
-              {data.contact.email}
-            </div>
-          )}
-          {data.contact.portfolio && (
-            <div className="contact-item">
-              <span>Portfolio</span>
-              {data.contact.portfolio}
-            </div>
-          )}
-          {data.contact.linkedin && (
-            <div className="contact-item">
-              <span>LinkedIn</span>
-              {data.contact.linkedin}
-            </div>
-          )}
-          {data.contact.github && (
-            <div className="contact-item">
-              <span>GitHub</span>
-              {data.contact.github}
-            </div>
-          )}
-        </div>
+      {/* ─── SUMMARY ─── */}
+      {data.summary && (
+        <section className="section">
+          <h2 className="section-heading">Summary</h2>
+          <p className="summary-text">{data.summary}</p>
+        </section>
+      )}
 
-        {/* Skills — Object.entries() turns {Frontend: [...], Backend: [...]} into pairs */}
-        <div className="sidebar-section">
-          <div className="s-label">Core Skills</div>
+      {/* ─── SKILLS ─── */}
+      {data.skills && Object.keys(data.skills).length > 0 && (
+        <section className="section">
+          <h2 className="section-heading">Skills</h2>
           {Object.entries(data.skills).map(([category, skillList]) => (
-            <div key={category} className="skill-category">
-              <div className="skill-category-label">{category}</div>
-              <div className="skills-grid">
-                {skillList.map((skill) => (
-                  <span key={skill} className="skill-tag">
-                    {skill}
-                  </span>
-                ))}
-              </div>
+            <div key={category} className="skill-line">
+              <span className="skill-category">{category}: </span>
+              <span className="skill-list">{skillList.join(', ')}</span>
             </div>
           ))}
-        </div>
+        </section>
+      )}
 
-        {/* Education */}
-        {data.education?.length > 0 && (
-          <div className="sidebar-section">
-            <div className="s-label">Education</div>
-            {data.education.map((edu, i) => (
-              <div key={i} className="edu-item">
-                <div className="edu-year">{edu.year}</div>
-                <div className="edu-degree">{edu.degree}</div>
-                <div className="edu-inst">{edu.institution}</div>
+      {/* ─── EXPERIENCE ─── */}
+      {data.experience?.length > 0 && (
+        <section className="section">
+          <h2 className="section-heading">Professional Experience</h2>
+          {data.experience.map((job, i) => (
+            <div key={i} className="job">
+              <div className="job-header">
+                <div className="job-title">{job.title}</div>
+                <div className="job-period">{job.period}</div>
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Languages */}
-        {data.languages?.length > 0 && (
-          <div className="sidebar-section">
-            <div className="s-label">Languages</div>
-            {data.languages.map((lang) => (
-              <div key={lang} className="lang-item">
-                {lang}
+              <div className="job-company">
+                {job.company}
+                {job.location ? `, ${job.location}` : ''}
               </div>
-            ))}
-          </div>
-        )}
-      </aside>
-
-      {/* ─── RIGHT MAIN ─── */}
-      <main className="main">
-        {/* Summary */}
-        {data.summary && (
-          <div className="summary">
-            <p>{data.summary}</p>
-          </div>
-        )}
-
-        {/* Experience */}
-        {data.experience?.length > 0 && (
-          <div className="section">
-            <div className="section-heading">Professional Experience</div>
-            {data.experience.map((job, i) => (
-              <div key={i} className="job">
-                <div className="job-header">
-                  <div className="job-title">{job.title}</div>
-                  <div className="job-period">{job.period}</div>
-                </div>
-                <div className="job-company">
-                  {job.company}
-                  {job.location ? ` · ${job.location}` : ''}
-                </div>
-                <ul>
-                  {job.bullets.map((bullet, j) => (
-                    <li key={j}>{bullet}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Certifications */}
-        {data.certifications?.length > 0 && (
-          <div className="section">
-            <div className="section-heading">Certifications</div>
-            <div className="job">
               <ul>
-                {data.certifications.map((cert, i) => (
-                  <li key={i}>{cert}</li>
+                {job.bullets.map((bullet, j) => (
+                  <li key={j}>{bullet}</li>
                 ))}
               </ul>
             </div>
-          </div>
-        )}
+          ))}
+        </section>
+      )}
 
-        {/* Awards */}
-        {data.awards?.length > 0 && (
-          <div className="section">
-            <div className="section-heading">Awards</div>
-            <div className="job">
-              <ul>
-                {data.awards.map((award, i) => (
-                  <li key={i}>{award}</li>
-                ))}
-              </ul>
+      {/* ─── EDUCATION ─── */}
+      {data.education?.length > 0 && (
+        <section className="section">
+          <h2 className="section-heading">Education</h2>
+          {data.education.map((edu, i) => (
+            <div key={i} className="edu-item">
+              <div className="edu-header">
+                <span className="edu-degree">{edu.degree}</span>
+                <span className="edu-year">{edu.year}</span>
+              </div>
+              <div className="edu-inst">{edu.institution}</div>
             </div>
-          </div>
-        )}
-      </main>
+          ))}
+        </section>
+      )}
+
+      {/* ─── CERTIFICATIONS ─── */}
+      {data.certifications?.length > 0 && (
+        <section className="section">
+          <h2 className="section-heading">Certifications</h2>
+          <ul>
+            {data.certifications.map((cert, i) => (
+              <li key={i}>{cert}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* ─── AWARDS ─── */}
+      {data.awards?.length > 0 && (
+        <section className="section">
+          <h2 className="section-heading">Awards</h2>
+          <ul>
+            {data.awards.map((award, i) => (
+              <li key={i}>{award}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* ─── LANGUAGES ─── */}
+      {data.languages?.length > 0 && (
+        <section className="section">
+          <h2 className="section-heading">Languages</h2>
+          <p className="languages-text">{data.languages.join(', ')}</p>
+        </section>
+      )}
     </div>
   )
 }
